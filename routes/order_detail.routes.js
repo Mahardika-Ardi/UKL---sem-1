@@ -11,6 +11,7 @@ import { isKasir } from "../middleware/role_validations.js";
 const app = express();
 
 app.post("/addOrder", Authorize, isKasir, addOrderDetail);
+app.patch("/updateOrder/:id", Authorize, isKasir, updateOrderDetail);
 app.patch("/updateOrder", Authorize, isKasir, updateOrderDetail);
 app.get("/getOrder/:id", Authorize, isKasir, find);
 app.get("/addOrder", Authorize, isKasir, find);

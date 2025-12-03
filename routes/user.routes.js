@@ -13,7 +13,7 @@ const app = express();
 
 app.post("/addUsers", addUser);
 app.patch("/updateUsers", updateUsers);
-app.delete("/deleteUsers", deltUsers);
+app.delete("/deleteUsers/:id", deltUsers);
 app.get("/find/:id", Authorize, isAdmin, find);
 app.get("/find", Authorize, isAdmin, find);
 

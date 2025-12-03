@@ -59,7 +59,7 @@ export const addOrderDetail = async (req, res) => {
 
 export const updateOrderDetail = async (req, res) => {
   try {
-    const id = req.params.id || req.body.id || req.query.id;
+    const id = Number(req.params.id) || req.body.id || req.query.id;
     const { order_id, coffe_id, quantity, price } = req.body;
 
     const findCoffe = await prisma.coffe.findMany({

@@ -38,8 +38,8 @@ app.patch(
   upload.single("image"),
   updateCoffe
 );
-app.delete("/deleteMenu", Authorize, isAdmin, deltMenu);
-app.delete("/findCoffe/:id", Authorize, isAdmin, findCoffe);
-app.delete("/findCoffe", Authorize, isAdmin, findCoffe);
+app.delete("/deleteMenu/:id", Authorize, isAdmin, deltMenu);
+app.get("/findCoffe/:id", Authorize, isAdmin, findCoffe);
+app.get("/findCoffe", Authorize, isAdmin, findCoffe);
 
 export default app;
