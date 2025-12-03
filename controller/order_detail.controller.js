@@ -4,14 +4,18 @@ const prisma = new PrismaClient();
 
 export const addOrderDetail = async (req, res) => {
   try {
-    const { order_id, coffe_id, quantity, price } = req.body;
+    const { order_id, coffe_id, quantity } = req.body;
 
+    const findCoffe = await prisma.coffe.findMany({ where: { id: coffe_id } });
+    const priceCoffe = findCoffe.map((item) => {
+      return item.price;
+    });
     const add = await prisma.order_Detail.create({
       data: {
         order_id: Number(order_id),
         coffe_id: Number(coffe_id),
         quantity: Number(quantity),
-        price: parseFloat(price),
+        price: parseFloat(priceCoffe * quantity),
       },
       include: { orderList: true, coffe: true },
     });
@@ -40,7 +44,7 @@ export const addOrderDetail = async (req, res) => {
           ordered_at: add.orderList.order_date,
         },
         quantity: add.quantity,
-        price: add.coffe.price * add.quantity,
+        price: add.price,
         order_created_at: add.createdAt,
       },
     });
@@ -58,19 +62,25 @@ export const updateOrderDetail = async (req, res) => {
     const id = req.params.id || req.body.id || req.query.id;
     const { order_id, coffe_id, quantity, price } = req.body;
 
+    const findCoffe = await prisma.coffe.findMany({
+      where: { id: coffe_id },
+    });
+    const priceCoffe = findCoffe.map((item) => {
+      return item.price;
+    });
     const updt = await prisma.order_Detail.update({
       where: { id },
       data: {
         order_id: Number(order_id),
         coffe_id: Number(coffe_id),
         quantity: Number(quantity),
-        price: parseFloat(price),
+        price: parseFloat(priceCoffe * quantity),
       },
     });
 
     if (!updt) {
       return res.status(404).json({
-        Message: "failed to update order list!",
+        Message: "failed to update order details!",
         Information: [],
       });
     }
@@ -96,14 +106,14 @@ export const updateOrderDetail = async (req, res) => {
           ordered_at: item.orderList.order_date,
         },
         quantity: item.quantity,
-        price: item.coffe.price * item.quantity,
+        price: item.price,
         order_created_at: item.createdAt,
       };
       return resl;
     });
 
     res.status(200).json({
-      Message: "Successfully updated order list",
+      Message: "Successfully updated order details",
       Information: result,
     });
   } catch (error) {
@@ -129,7 +139,7 @@ export const find = async (req, res) => {
 
     if (Object.keys(where).length === 0) {
       return res.status(404).json({
-        Message: "Invalid input, data must be filled to search order list!",
+        Message: "Invalid input, data must be filled to search order details!",
         Information: [],
       });
     }
@@ -159,13 +169,14 @@ export const find = async (req, res) => {
             ordered_at: item.orderList.order_date,
           },
           quantity: item.quantity,
-          price: item.coffe.price * item.quantity,
+          price: item.price,
           order_created_at: item.createdAt,
         };
         return resl;
       });
       return res.status(200).json({
-        Message: "Can't find that users, showing all users instead!",
+        Message:
+          "Can't find that order details, showing all order details instead!",
         Information: result,
       });
     }

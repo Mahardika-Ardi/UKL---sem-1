@@ -131,7 +131,7 @@ export const findOrderList = async (req, res) => {
         return resl;
       });
       return res.status(200).json({
-        Message: "Can't find that users, showing all users instead!",
+        Message: "Can't find that order list, showing all order list instead!",
         Information: result,
       });
     }

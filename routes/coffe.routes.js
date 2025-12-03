@@ -32,7 +32,7 @@ const upload = multer({ storage });
 
 app.post("/addMenu", Authorize, isAdmin, upload.single("image"), addCoffe);
 app.patch(
-  "/updateMenu",
+  "/updateMenu/:id",
   Authorize,
   isAdmin,
   upload.single("image"),

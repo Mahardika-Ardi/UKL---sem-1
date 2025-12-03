@@ -5,8 +5,8 @@ import {
   update,
   findOrderList,
 } from "../controller/order_list.controller.js";
-import { Authorize } from "../controller/auth.controller";
-import { isKasir } from "../middleware/role_validations";
+import { Authorize } from "../controller/auth.controller.js";
+import { isKasir } from "../middleware/role_validations.js";
 
 const app = express();
 

@@ -59,7 +59,7 @@ export const updateCoffe = async (req, res) => {
 
     res.status(200).json({
       Message: "Successfully update this menu!",
-      Information: variable,
+      Information: updt,
     });
   } catch (error) {
     console.log(error);
