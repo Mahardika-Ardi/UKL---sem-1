@@ -10,12 +10,28 @@ export const addOrderDetail = async (req, res) => {
     const priceCoffe = findCoffe.map((item) => {
       return item.price;
     });
+
+    let finalQuantity;
+    if (quantity >= 2) {
+      let Qtty = quantity / 2;
+      finalQuantity = quantity + Qtty;
+    }
+
+    let finalPrice;
+    if (priceCoffe * quantity >= 50000) {
+      finalPrice = priceCoffe * quantity;
+      let diskon = finalPrice * 0.1;
+      finalPrice -= diskon;
+    } else {
+      finalPrice = priceCoffe * quantity;
+    }
+
     const add = await prisma.order_Detail.create({
       data: {
         order_id: Number(order_id),
         coffe_id: Number(coffe_id),
-        quantity: Number(quantity),
-        price: parseFloat(priceCoffe * quantity),
+        quantity: finalQuantity,
+        price: finalPrice,
       },
       include: { orderList: true, coffe: true },
     });
@@ -27,6 +43,12 @@ export const addOrderDetail = async (req, res) => {
       });
     }
 
+    let finalOutputPrice;
+    if (priceCoffe * quantity >= 50000) {
+      finalOutputPrice = `${finalPrice} has been discounted 10%`;
+    } else {
+      finalOutputPrice = finalPrice;
+    }
     res.status(200).json({
       Message: "Sucessfully add order detail",
       Information: {
@@ -44,7 +66,7 @@ export const addOrderDetail = async (req, res) => {
           ordered_at: add.orderList.order_date,
         },
         quantity: add.quantity,
-        price: add.price,
+        price: finalOutputPrice,
         order_created_at: add.createdAt,
       },
     });
@@ -68,13 +90,23 @@ export const updateOrderDetail = async (req, res) => {
     const priceCoffe = findCoffe.map((item) => {
       return item.price;
     });
+
+    let finalPrice;
+    if (priceCoffe * quantity >= 50000) {
+      finalPrice = priceCoffe * quantity;
+      let diskon = finalPrice * 0.1;
+      finalPrice -= diskon;
+    } else {
+      finalPrice = price * quantity;
+    }
+
     const updt = await prisma.order_Detail.update({
       where: { id },
       data: {
         order_id: Number(order_id),
         coffe_id: Number(coffe_id),
         quantity: Number(quantity),
-        price: parseFloat(priceCoffe * quantity),
+        price: finalPrice,
       },
     });
 
@@ -89,6 +121,13 @@ export const updateOrderDetail = async (req, res) => {
       where: { id },
       include: { orderList: true, coffe: true },
     });
+
+    let finalOutputPrice;
+    if (priceCoffe * quantity >= 50000) {
+      finalOutputPrice = `${finalPrice} has been discounted 10%`;
+    } else {
+      finalOutputPrice = finalPrice;
+    }
 
     const result = find.map((item) => {
       const resl = {
@@ -106,7 +145,7 @@ export const updateOrderDetail = async (req, res) => {
           ordered_at: item.orderList.order_date,
         },
         quantity: item.quantity,
-        price: item.price,
+        price: finalOutputPrice,
         order_created_at: item.createdAt,
       };
       return resl;
@@ -196,7 +235,7 @@ export const find = async (req, res) => {
           ordered_at: item.orderList.order_date,
         },
         quantity: item.quantity,
-        price: item.coffe.price * item.quantity,
+        price: item.price,
         order_created_at: item.createdAt,
       };
       return result;

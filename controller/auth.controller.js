@@ -32,7 +32,9 @@ export const login = async (req, res) => {
       email: find.email,
       role: find.role,
     };
-    const token = jwt.sign(payload, process.env.SECRET_KEY);
+    const token = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "1d",
+    });
 
     res.status(200).json({
       Message: "Successfully Log In!",

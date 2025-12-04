@@ -20,6 +20,13 @@ export const reportAll = async (req, res) => {
       },
     });
 
+    if (!aggrate) {
+      return res.status(404).json({
+        Message: "Error while loading and counting data",
+        Information: [],
+      });
+    }
+
     const find = await prisma.order_Detail.findMany({
       take: 3,
       where: { quantity: Number(aggrate._max.quantity) },
@@ -28,40 +35,40 @@ export const reportAll = async (req, res) => {
         coffe: true,
       },
     });
-    const coffeId = find.map((item) => {
-      return item.coffe_id;
+
+    if (!find) {
+      return res.status(404).json({
+        Message: "Error while loading data",
+        Information: [],
+      });
+    }
+
+    const most_ordered_meal = {};
+    find.forEach((item) => {
+      most_ordered_meal[item.coffe.name] = { menu_id: Number(item.coffe_id) };
     });
-    const findCoffe = await prisma.coffe.findMany({
-      where: { id: Number(coffeId) },
-    });
-    const cofNam = findCoffe.map((item) => {
-      return item.name;
+    const most_ordered_size = {};
+    find.forEach((item) => {
+      most_ordered_size[item.coffe.size] = { menu_id: Number(item.coffe_id) };
     });
 
-    const foodResult = find.forEach((item) => {
-      return { [cofNam]: Number(coffeId) };
-    });
-
-    // const arr = [];
-    // arr.push({ [cofNam]: Number(coffeId) });
     res.status(200).json({
       Message: `Report analysis from ${
         new Date(start_date).toISOString().split("T")[0]
       } to ${new Date(end_date).toISOString().split("T")[0]}`,
       Information: {
         total_order_detail: aggrate._count,
-        total_money_overall: aggrate._sum.price,
-        total_meal: aggrate._sum.quantity,
+        total_money_overall: Number(aggrate._sum.price),
+        total_meal: Number(aggrate._sum.quantity),
         report_satatus_from_order: {
-          biggest_money_income: aggrate._max.price,
-          smallest_money_income: aggrate._min.price,
-          avarage_money_income: aggrate._avg.price,
-          biggest_quantity_ordered: aggrate._max.quantity,
-          smallest_quantity_ordered: aggrate._min.quantity,
+          biggest_money_income: Number(aggrate._max.price),
+          smallest_money_income: Number(aggrate._min.price),
+          avarage_money_income: parseInt(aggrate._avg.price),
+          biggest_quantity_ordered: Number(aggrate._max.quantity),
+          smallest_quantity_ordered: Number(aggrate._min.quantity),
         },
-        most_ordered_meal: {
-          foodResult,
-        },
+        most_ordered_meal,
+        most_ordered_size,
       },
     });
   } catch (error) {
